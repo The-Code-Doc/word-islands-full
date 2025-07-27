@@ -77,36 +77,33 @@ window.onload = function () {
       const { length, count, time } = ISLAND_RULES[this.island];
       this.timeLimit = time;
       this.words = Phaser.Utils.Array.Shuffle(MASTER_WORD_LIST.filter(w => w.length === length)).slice(0, count);
-      this.index = 0;
     }
 
     create() {
       this.startTime = this.time.now;
-      this.currentWord = this.words[this.index];
-      this.scrambled = this.shuffle(this.currentWord);
+      this.remainingWords = [...this.words];
+      this.inputBoxes = [];
 
-      this.add.text(400, 50, `${this.island} Island`, { fontSize: "28px", fill: "#004d40" }).setOrigin(0.5);
-      this.timerText = this.add.text(400, 90, "Time: 0", { fontSize: "20px", fill: "#aa0000" }).setOrigin(0.5);
-      this.scrambleText = this.add.text(400, 180, this.scrambled, { fontSize: "36px", fill: "#003" }).setOrigin(0.5);
-      this.feedback = this.add.text(400, 240, "", { fontSize: "20px", fill: "#007700" }).setOrigin(0.5);
+      this.add.text(400, 30, `${this.island} Island`, { fontSize: "28px", fill: "#004d40" }).setOrigin(0.5);
+      this.timerText = this.add.text(400, 60, "Time Left: ", { fontSize: "20px", fill: "#aa0000" }).setOrigin(0.5);
 
-      this.inputField = this.add.dom(400, 310, 'input', {
-        type: 'text', fontSize: '20px', width: '200px', padding: '10px'
-      });
+      this.feedback = this.add.text(400, 470, "", { fontSize: "20px", fill: "#007700" }).setOrigin(0.5);
 
-      this.submitBtn = this.add.text(400, 370, "Submit", {
-        fontSize: "22px", backgroundColor: "#00c2ff", color: "#fff", padding: { x: 15, y: 8 }
-      }).setOrigin(0.5).setInteractive();
+      const yStart = 120;
+      this.remainingWords.forEach((word, i) => {
+        const scrambled = this.shuffle(word);
+        this.add.text(150, yStart + i * 60, scrambled, { fontSize: "28px", fill: "#004d40" });
 
-      this.submitBtn.on("pointerdown", () => {
-        const guess = this.inputField.node.value.trim().toLowerCase();
-        if (guess === this.currentWord) {
-          this.feedback.setText("✅ Correct!");
-          this.inputField.node.value = "";
-          this.nextWord();
-        } else {
-          this.feedback.setText("❌ Try again");
-        }
+        const input = this.add.dom(450, yStart + i * 60, 'input', {
+          type: 'text', fontSize: '18px', width: '180px', padding: '6px'
+        });
+
+        input.originalWord = word;
+        input.onMatch = () => {
+          input.setVisible(false);
+        };
+
+        this.inputBoxes.push(input);
       });
 
       this.timer = this.time.addEvent({
@@ -121,26 +118,26 @@ window.onload = function () {
       const elapsed = Math.floor((this.time.now - this.startTime) / 1000);
       const remaining = this.timeLimit - elapsed;
       this.timerText.setText("Time Left: " + remaining);
+
       if (remaining <= 0) {
         this.endGame(false);
       }
-    }
 
-    nextWord() {
-      this.index++;
-      if (this.index >= this.words.length) {
+      for (const input of this.inputBoxes) {
+        if (input.visible) {
+          const guess = input.node.value.trim().toLowerCase();
+          if (guess === input.originalWord) {
+            input.onMatch();
+          }
+        }
+      }
+
+      if (this.inputBoxes.every(box => !box.visible)) {
         this.endGame(true);
-      } else {
-        this.currentWord = this.words[this.index];
-        this.scrambled = this.shuffle(this.currentWord);
-        this.scrambleText.setText(this.scrambled);
-        this.feedback.setText("");
       }
     }
 
     endGame(success) {
-      this.inputField.setVisible(false);
-      this.submitBtn.disableInteractive();
       this.timer.remove();
 
       if (success) {
