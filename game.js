@@ -91,12 +91,12 @@ window.onload = function () {
       this.feedback = this.add.text(400, 560, "", { fontSize: "20px", fill: "#007700" }).setOrigin(0.5);
 
       this.words.forEach((word, index) => {
-        const y = 120 + index * 70;
+        const baseY = 120 + index * 80;
         const scrambled = this.shuffle(word);
-        this.add.text(180, y, scrambled, { fontSize: "26px", fill: "#004d40" }).setOrigin(0, 0.5);
 
-        const input = this.add.dom(480, y, 'input', {
-          type: 'text', fontSize: '18px', width: '180px', padding: '6px'
+        this.add.text(400, baseY, scrambled, { fontSize: "24px", fill: "#004d40" }).setOrigin(0.5);
+        const input = this.add.dom(400, baseY + 30, 'input', {
+          type: 'text', fontSize: '18px', width: '200px', padding: '6px'
         });
         input.originalWord = word;
         this.inputs.push(input);
