@@ -214,14 +214,14 @@ window.onload = function () {
   }
 
   const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    backgroundColor: '#f1f8e9',
-    parent: 'phaser-game',
-    dom: { createContainer: true },
-    scene: [ProgressMapScene, EarthIslandScene]
-  };
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  backgroundColor: '#f1f8e9',
+  parent: 'phaser-game',
+  dom: { createContainer: true },
+  scene: [ProgressMapScene, EarthIslandScene]
+};
 
   new Phaser.Game(config);
 };
