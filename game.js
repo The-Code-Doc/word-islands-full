@@ -8,9 +8,10 @@ window.onload = function () {
   };
 
   const MASTER_WORD_LIST = [
-    "plant", "river", "stone", "grain", "lemon", "earth", "table", "chair", "cloud", "field", "bloom", "fruit", "roots", "trunk", "creek", "slope", "rocks", "dunes", "miner", "muddy", "canal", "flame",
-    "journey", "weather", "picture", "diamond", "kingdom", "festival", "capture", "station", "freedom", "library", "network", "history", "venture", "blanket", "teacher", "fantasy", "pursuit", "fortune", "musical",
-    "miracle", "passion", "stadium", "thought", "garment", "charity", "silence", "organic", "dismiss", "culture",
+    "plant", "river", "stone", "grain", "lemon", "earth", "table", "chair", "cloud", "field",
+    "bloom", "fruit", "roots", "trunk", "creek", "slope", "rocks", "dunes", "miner", "muddy",
+    "journey", "weather", "picture", "diamond", "kingdom", "festival", "capture", "station", "freedom",
+    "library", "network", "history", "venture", "blanket", "teacher", "fantasy", "pursuit", "fortune", "musical",
     "foundation", "playwright", "apocalypse", "experience", "journalism", "technology", "university", "vegetables", "background", "earthquake"
   ];
 
@@ -75,35 +76,30 @@ window.onload = function () {
     init(data) {
       this.island = data.island;
       const { length, count, time } = ISLAND_RULES[this.island];
+      this.wordLength = length;
+      this.wordCount = count;
       this.timeLimit = time;
       this.words = Phaser.Utils.Array.Shuffle(MASTER_WORD_LIST.filter(w => w.length === length)).slice(0, count);
     }
 
     create() {
       this.startTime = this.time.now;
-      this.remainingWords = [...this.words];
-      this.inputBoxes = [];
+      this.inputs = [];
 
       this.add.text(400, 30, `${this.island} Island`, { fontSize: "28px", fill: "#004d40" }).setOrigin(0.5);
-      this.timerText = this.add.text(400, 60, "Time Left: ", { fontSize: "20px", fill: "#aa0000" }).setOrigin(0.5);
+      this.timerText = this.add.text(400, 60, "", { fontSize: "20px", fill: "#aa0000" }).setOrigin(0.5);
+      this.feedback = this.add.text(400, 480, "", { fontSize: "20px", fill: "#007700" }).setOrigin(0.5);
 
-      this.feedback = this.add.text(400, 470, "", { fontSize: "20px", fill: "#007700" }).setOrigin(0.5);
-
-      const yStart = 120;
-      this.remainingWords.forEach((word, i) => {
+      this.words.forEach((word, index) => {
+        const y = 120 + index * 60;
         const scrambled = this.shuffle(word);
-        this.add.text(150, yStart + i * 60, scrambled, { fontSize: "28px", fill: "#004d40" });
+        this.add.text(120, y, scrambled, { fontSize: "26px", fill: "#004d40" });
 
-        const input = this.add.dom(450, yStart + i * 60, 'input', {
+        const input = this.add.dom(440, y, 'input', {
           type: 'text', fontSize: '18px', width: '180px', padding: '6px'
         });
-
         input.originalWord = word;
-        input.onMatch = () => {
-          input.setVisible(false);
-        };
-
-        this.inputBoxes.push(input);
+        this.inputs.push(input);
       });
 
       this.timer = this.time.addEvent({
@@ -119,42 +115,38 @@ window.onload = function () {
       const remaining = this.timeLimit - elapsed;
       this.timerText.setText("Time Left: " + remaining);
 
-      if (remaining <= 0) {
-        this.endGame(false);
-      }
+      if (remaining <= 0) return this.endGame(false);
 
-      for (const input of this.inputBoxes) {
+      for (const input of this.inputs) {
         if (input.visible) {
           const guess = input.node.value.trim().toLowerCase();
           if (guess === input.originalWord) {
-            input.onMatch();
+            input.setVisible(false);
           }
         }
       }
 
-      if (this.inputBoxes.every(box => !box.visible)) {
+      if (this.inputs.every(i => !i.visible)) {
         this.endGame(true);
       }
     }
 
     endGame(success) {
       this.timer.remove();
+      this.inputs.forEach(input => input.setVisible(false));
+
+      const stored = JSON.parse(localStorage.getItem("wordIslandProgress") || "{}");
+      if (!stored.completedIslands) stored.completedIslands = [];
 
       if (success) {
         this.feedback.setText("🎉 Completed!").setColor("#004d40");
-        const stored = JSON.parse(localStorage.getItem("wordIslandProgress") || "{}");
-        if (!stored.completedIslands) stored.completedIslands = [];
         if (!stored.completedIslands.includes(this.island)) stored.completedIslands.push(this.island);
-        if (this.island !== "Elemental" && stored.completedIslands.length >= 4) {
-          stored.unlockedIslands = 5;
-        } else {
-          stored.unlockedIslands = Math.max(stored.unlockedIslands || 1, stored.completedIslands.length + 1);
-        }
-        localStorage.setItem("wordIslandProgress", JSON.stringify(stored));
+        stored.unlockedIslands = (this.island === "Elemental") ? 5 : Math.max(stored.completedIslands.length + 1, stored.unlockedIslands || 1);
       } else {
         this.feedback.setText("⏱️ Time's up!").setColor("#b71c1c");
       }
 
+      localStorage.setItem("wordIslandProgress", JSON.stringify(stored));
       this.time.delayedCall(3000, () => this.scene.start("ProgressMapScene"));
     }
 
