@@ -88,14 +88,14 @@ window.onload = function () {
 
       this.add.text(400, 30, `${this.island} Island`, { fontSize: "28px", fill: "#004d40" }).setOrigin(0.5);
       this.timerText = this.add.text(400, 60, "", { fontSize: "20px", fill: "#aa0000" }).setOrigin(0.5);
-      this.feedback = this.add.text(400, 480, "", { fontSize: "20px", fill: "#007700" }).setOrigin(0.5);
+      this.feedback = this.add.text(400, 560, "", { fontSize: "20px", fill: "#007700" }).setOrigin(0.5);
 
       this.words.forEach((word, index) => {
-        const y = 120 + index * 60;
+        const y = 120 + index * 70;
         const scrambled = this.shuffle(word);
-        this.add.text(120, y, scrambled, { fontSize: "26px", fill: "#004d40" });
+        this.add.text(180, y, scrambled, { fontSize: "26px", fill: "#004d40" }).setOrigin(0, 0.5);
 
-        const input = this.add.dom(440, y, 'input', {
+        const input = this.add.dom(480, y, 'input', {
           type: 'text', fontSize: '18px', width: '180px', padding: '6px'
         });
         input.originalWord = word;
