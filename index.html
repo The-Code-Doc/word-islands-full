@@ -2,18 +2,17 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Word Islands - Full Game</title>
+  <title>Word Islands</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Quicksand', sans-serif;
       background: linear-gradient(to bottom, #cdeffd, #f3f9ff);
+      margin: 0;
     }
-    canvas {
-      display: block;
-      margin: auto;
-    }
+    canvas { display: block; margin: auto; }
+    #phaser-game { position: relative; }
     #settings-panel {
       position: absolute;
       top: 40px;
@@ -22,28 +21,11 @@
       padding: 15px;
       border: 2px solid #333;
       display: none;
-      font-family: Quicksand;
     }
   </style>
 </head>
 <body>
-  <div id="settings-panel">
-    <h3>Settings</h3>
-    <label>Music Volume: <input id="music-slider" type="range" min="0" max="1" step="0.01"></label><br>
-    <label>SFX Volume: <input id="sfx-slider" type="range" min="0" max="1" step="0.01"></label><br>
-    <button onclick="document.getElementById('settings-panel').style.display='none';location.reload();">Close</button>
-  </div>
-
-  <script>
-    const musicSlider = document.getElementById("music-slider");
-    const sfxSlider = document.getElementById("sfx-slider");
-    musicSlider.value = localStorage.getItem("musicVolume") || 0.5;
-    sfxSlider.value = localStorage.getItem("sfxVolume") || 0.7;
-    musicSlider.oninput = () => localStorage.setItem("musicVolume", musicSlider.value);
-    sfxSlider.oninput = () => localStorage.setItem("sfxVolume", sfxSlider.value);
-  </script>
-
-  <button style="position:absolute;top:10px;right:10px;" onclick="document.getElementById('settings-panel').style.display='block';">⚙️</button>
+  <div id="phaser-game"></div>
   <script src="game.js" defer></script>
 </body>
 </html>
