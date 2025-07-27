@@ -90,15 +90,17 @@ window.onload = function () {
       this.timerText = this.add.text(400, 60, "", { fontSize: "20px", fill: "#aa0000" }).setOrigin(0.5);
       this.feedback = this.add.text(400, 560, "", { fontSize: "20px", fill: "#007700" }).setOrigin(0.5);
 
+      const spacing = 90;
       this.words.forEach((word, index) => {
-        const baseY = 120 + index * 80;
+        const baseY = 120 + index * spacing;
         const scrambled = this.shuffle(word);
 
-        this.add.text(400, baseY, scrambled, { fontSize: "24px", fill: "#004d40" }).setOrigin(0.5);
+        const label = this.add.text(400, baseY, scrambled, { fontSize: "26px", fill: "#004d40" }).setOrigin(0.5);
         const input = this.add.dom(400, baseY + 30, 'input', {
           type: 'text', fontSize: '18px', width: '200px', padding: '6px'
         });
         input.originalWord = word;
+        input.wordLabel = label;
         this.inputs.push(input);
       });
 
@@ -122,6 +124,7 @@ window.onload = function () {
           const guess = input.node.value.trim().toLowerCase();
           if (guess === input.originalWord) {
             input.setVisible(false);
+            if (input.wordLabel) input.wordLabel.setVisible(false);
           }
         }
       }
