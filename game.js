@@ -24,10 +24,10 @@ window.onload = function () {
     }
 
     preload() {
-      this.load.image("bgEarth", "earth-island-bg.png");
-      this.load.image("bgWater", "water-island-bg.png");
-      this.load.image("bgWind", "wind-island-bg.png");
-      this.load.image("bgFire", "fire-island-bg.png");
+      this.load.image('bgEarth', 'earth-island-bg.png');
+      this.load.image('bgWater', 'water-island-bg.png');
+      this.load.image('bgWind', 'wind-island-bg.png');
+      this.load.image('bgFire', 'fire-island-bg.png');
     }
 
     create() {
