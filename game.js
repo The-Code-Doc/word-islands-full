@@ -1,3 +1,4 @@
+
 window.onload = function () {
   const ISLAND_RULES = {
     Earth: { length: 5, count: 5, time: 60 },
@@ -22,7 +23,12 @@ window.onload = function () {
       this.currentIndex = 0;
     }
 
-    preload() {}
+    preload() {
+      this.load.image("bgEarth", "earth-island-bg.png");
+      this.load.image("bgWater", "water-island-bg.png");
+      this.load.image("bgWind", "wind-island-bg.png");
+      this.load.image("bgFire", "fire-island-bg.png");
+    }
 
     create() {
       this.loadProgress();
@@ -86,8 +92,14 @@ window.onload = function () {
       this.startTime = this.time.now;
       this.inputs = [];
 
-      this.add.text(400, 30, `${this.island} Island`, { fontSize: "28px", fill: "#004d40" }).setOrigin(0.5);
-      this.timerText = this.add.text(400, 60, "", { fontSize: "20px", fill: "#aa0000" }).setOrigin(0.5);
+      // Add island-specific background
+      const bgKey = `bg${this.island}`;
+      if (this.textures.exists(bgKey)) {
+        this.add.image(400, 300, bgKey).setDisplaySize(800, 600).setDepth(-1);
+      }
+
+      this.add.text(400, 30, `${this.island} Island`, { fontSize: "28px", fill: "#ffffff", backgroundColor: "#333" }).setOrigin(0.5);
+      this.timerText = this.add.text(400, 60, "", { fontSize: "20px", fill: "#ff0000" }).setOrigin(0.5);
       this.feedback = this.add.text(400, 560, "", { fontSize: "20px", fill: "#007700" }).setOrigin(0.5);
 
       const spacing = 100;
@@ -100,7 +112,7 @@ window.onload = function () {
         });
 
         const label = this.add.text(400, baseY - 70, scrambled, {
-          fontSize: "26px", fill: "#004d40"
+          fontSize: "26px", fill: "#ffffff", backgroundColor: "#00000099"
         }).setOrigin(0.5);
 
         input.originalWord = word;
@@ -170,7 +182,7 @@ window.onload = function () {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    backgroundColor: '#f1f8e9',
+    backgroundColor: '#222',
     parent: 'phaser-game',
     dom: { createContainer: true },
     scene: [ProgressMapScene, IslandScene]
