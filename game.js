@@ -24,22 +24,29 @@ window.onload = function () {
     }
 
     preload() {
-      this.load.image("bgEarth", 'earth-island-bg.png');
-      this.load.image("bgWater", 'water-island-bg.png');
-      this.load.image("bgWind", 'wind-island-bg.png');
-      this.load.image("bgFire", 'fire-island-bg.png');
+      this.load.image("bgEarth", "earth-island-bg.png");
+      this.load.image("bgWater", "water-island-bg.png");
+      this.load.image("bgWind", "wind-island-bg.png");
+      this.load.image("bgFire", "fire-island-bg.png");
     }
 
     create() {
       this.loadProgress();
-      this.add.text(400, 80, "🌍 Word Islands", { fontSize: "32px", fill: "#004d40" }).setOrigin(0.5);
-      this.status = this.add.text(400, 140, "", { fontSize: "20px", fill: "#333" }).setOrigin(0.5);
-      this.islandLabel = this.add.text(400, 280, "", { fontSize: "40px", fill: "#00695c" }).setOrigin(0.5);
-      this.leftArrow = this.add.text(100, 280, "<", { fontSize: "48px", fill: "#00838f" }).setOrigin(0.5).setInteractive().on("pointerdown", () => this.navigate(-1));
-      this.rightArrow = this.add.text(700, 280, ">", { fontSize: "48px", fill: "#00838f" }).setOrigin(0.5).setInteractive().on("pointerdown", () => this.navigate(1));
+      const currentIsland = this.islands[this.currentIndex];
+      const bgKey = `bg${currentIsland}`;
+      if (this.textures.exists(bgKey)) {
+        this.bg = this.add.image(400, 300, bgKey).setDisplaySize(800, 600).setDepth(-1);
+      }
+
+      this.title = this.add.text(400, 80, "🌍 Word Islands", { fontSize: "32px", fill: "#ffffff", backgroundColor: "#00000088" }).setOrigin(0.5);
+      this.status = this.add.text(400, 140, "", { fontSize: "20px", fill: "#ffffff", backgroundColor: "#00000088" }).setOrigin(0.5);
+      this.islandLabel = this.add.text(400, 280, "", { fontSize: "40px", fill: "#ffffff", backgroundColor: "#00000088" }).setOrigin(0.5);
+      this.leftArrow = this.add.text(100, 280, "<", { fontSize: "48px", fill: "#ffffff" }).setOrigin(0.5).setInteractive().on("pointerdown", () => this.navigate(-1));
+      this.rightArrow = this.add.text(700, 280, ">", { fontSize: "48px", fill: "#ffffff" }).setOrigin(0.5).setInteractive().on("pointerdown", () => this.navigate(1));
       this.enterBtn = this.add.text(400, 400, "Enter", {
         fontSize: "24px", backgroundColor: "#00c2ff", color: "#fff", padding: { x: 20, y: 10 }
       }).setOrigin(0.5).setInteractive().on("pointerdown", () => this.tryEnter());
+
       this.updateView();
     }
 
@@ -59,6 +66,11 @@ window.onload = function () {
 
     updateView() {
       const island = this.islands[this.currentIndex];
+      const bgKey = `bg${island}`;
+      if (this.bg && this.textures.exists(bgKey)) {
+        this.bg.setTexture(bgKey);
+      }
+
       const isUnlocked = this.currentIndex < this.unlocked || (island === "Elemental" && this.completed.length >= 4);
       const isCompleted = this.completed.includes(island);
       this.islandLabel.setText(island + (isUnlocked ? (isCompleted ? " ✅" : "") : " 🔒"));
@@ -92,28 +104,29 @@ window.onload = function () {
       this.startTime = this.time.now;
       this.inputs = [];
 
-      // Add island-specific background
       const bgKey = `bg${this.island}`;
       if (this.textures.exists(bgKey)) {
         this.add.image(400, 300, bgKey).setDisplaySize(800, 600).setDepth(-1);
       }
 
-      this.add.text(400, 30, `${this.island} Island`, { fontSize: "28px", fill: "#ffffff", backgroundColor: "#333" }).setOrigin(0.5);
-      this.timerText = this.add.text(400, 60, "", { fontSize: "20px", fill: "#ff0000" }).setOrigin(0.5);
-      this.feedback = this.add.text(400, 560, "", { fontSize: "20px", fill: "#007700" }).setOrigin(0.5);
+      this.add.text(400, 30, `${this.island} Island`, { fontSize: "28px", fill: "#ffffff", backgroundColor: "#00000088" }).setOrigin(0.5);
+      this.timerText = this.add.text(400, 60, "", { fontSize: "20px", fill: "#ffffff", backgroundColor: "#00000088" }).setOrigin(0.5);
+      this.feedback = this.add.text(400, 560, "", { fontSize: "20px", fill: "#ffffff", backgroundColor: "#00000088" }).setOrigin(0.5);
 
-      const spacing = 100;
+      const spacing = 80;
+      const startY = 120;
+
       this.words.forEach((word, index) => {
-        const baseY = 120 + index * spacing;
+        const y = startY + index * spacing;
         const scrambled = this.shuffle(word);
 
-        const input = this.add.dom(400, baseY, 'input', {
+        const label = this.add.text(200, y, scrambled, {
+          fontSize: "24px", fill: "#ffffff", backgroundColor: "#000000cc"
+        }).setOrigin(0.5);
+
+        const input = this.add.dom(600, y, 'input', {
           type: 'text', fontSize: '18px', width: '200px', padding: '6px'
         });
-
-        const label = this.add.text(400, baseY - 70, scrambled, {
-          fontSize: "26px", fill: "#ffffff", backgroundColor: "#00000099"
-        }).setOrigin(0.5);
 
         input.originalWord = word;
         input.wordLabel = label;
@@ -157,11 +170,11 @@ window.onload = function () {
       if (!stored.completedIslands) stored.completedIslands = [];
 
       if (success) {
-        this.feedback.setText("🎉 Completed!").setColor("#004d40");
+        this.feedback.setText("🎉 Completed!");
         if (!stored.completedIslands.includes(this.island)) stored.completedIslands.push(this.island);
         stored.unlockedIslands = (this.island === "Elemental") ? 5 : Math.max(stored.completedIslands.length + 1, stored.unlockedIslands || 1);
       } else {
-        this.feedback.setText("⏱️ Time's up!").setColor("#b71c1c");
+        this.feedback.setText("⏱️ Time's up!");
       }
 
       localStorage.setItem("wordIslandProgress", JSON.stringify(stored));
@@ -182,7 +195,7 @@ window.onload = function () {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    backgroundColor: '#222',
+    backgroundColor: '#000000',
     parent: 'phaser-game',
     dom: { createContainer: true },
     scene: [ProgressMapScene, IslandScene]
